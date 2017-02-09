@@ -7,9 +7,8 @@ var bodyParser = require('body-parser');
 
 var index = require('./routes/index');
 var users = require('./routes/users');
-var wit = require('./routes/wit');
+//var wit = require('./routes/wit');
 var botkit = require('./routes/botkit');
-//var slack = require('./routes/slack');
 
 var app = express();
 
