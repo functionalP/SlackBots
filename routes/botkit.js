@@ -41,17 +41,16 @@ slack_bot.startRTM(err => {
     }
 });
 
-// slack_bot.sendWebhook({
-//     text: 'Welcome! How may I help you?',
-//     channel: '@harika',
-// }, (err, res) =>    {
-//     if(err) {
-//         console.log("Error in posting to incoming webhook");
-//         return;
-//     }
-//     console.log("Posted to Incoming webhook successfully");
-//     console.log(res);
-// });
+slack_bot.sendWebhook({
+    text: 'Welcome! How may I help you?',
+}, (err, res) =>    {
+    if(err) {
+        console.log("Error in posting to incoming webhook");
+        return;
+    }
+    console.log("Posted to Incoming webhook successfully");
+    console.log(res);
+});
 
 controller.middleware.receive.use(wit.receive);
 
