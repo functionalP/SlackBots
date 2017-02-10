@@ -28,13 +28,30 @@ var wit = require('botkit-witai')({
 const controller = Botkit.slackbot();
 
 // Starts the websocket connection
-controller.spawn({
-    token: process.env.SLACK_BOT_TOKEN
-}).startRTM(err => {
+var slack_bot = controller.spawn({
+    token: process.env.SLACK_BOT_TOKEN,
+    incoming_webhook: {
+        url : process.env.INCOMING_WEBHOOK_URL
+    }
+});
+
+slack_bot.startRTM(err => {
     if (err) {
         console.error(`Error: Could not start the bot - ${err}`);
     }
 });
+
+// slack_bot.sendWebhook({
+//     text: 'Welcome! How may I help you?',
+//     channel: '@harika',
+// }, (err, res) =>    {
+//     if(err) {
+//         console.log("Error in posting to incoming webhook");
+//         return;
+//     }
+//     console.log("Posted to Incoming webhook successfully");
+//     console.log(res);
+// });
 
 controller.middleware.receive.use(wit.receive);
 
@@ -63,8 +80,18 @@ controller.on('hello', (bot, message) => {
 controller.hears(['(.*)'], 'direct_message,direct_mention,mention', (bot, message) => {
     console.log("*****");
     console.log(message);
+
+    if(slack_bot === bot)   {
+        console.log("------- Both bots are same------")
+    }
+    if(message.entities.intent == undefined) {
+        bot.reply(message, "Sorry, I don't understand.");
+        return;
+    }
     var intent = message.entities.intent[0].value;
-    console.log("Intent: " + intent)
+
+    console.log("Intent: " + intent);
+
     actions[intent](bot, message);
 });
 
