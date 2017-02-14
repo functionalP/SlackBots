@@ -18,8 +18,9 @@ if (!process.env.WIT_TOKEN) {
     process.exit(1);
 }
 
-var wit = require('botkit-witai')({
+var wit = require('./wit')({
     accessToken: process.env.WIT_TOKEN,
+    apiVersion: '20160516',
     minConfidence: 0.6,
     logLevel: 'debug'
 });
@@ -62,27 +63,32 @@ controller.on('channel_joined', (bot, { channel: { id, name } }) => {
     });
 });
 
+controller.on('channel_leave', (bot, { channel: { id, name } }) => {
+    bot.say({
+        text: `Thank you for leaving channel ${name}`,
+        channel: id
+    });
+});
+
 controller.on('im_open', (bot, message) => {
     console.log("**im_open***");
     console.log(message);
 });
 
-controller.on('hello', (bot, message) => {
-    console.log("Got Helloooo");
+controller.on('im_close', (bot, message) => {
+    console.log("**im_close***");
     console.log(message);
-    bot.say({
-        text: 'Thank you for inviting me to channel',
-        channel: 'U3ZPENRP1'
-    });
+});
+
+controller.on('im_marked', (bot, message) => {
+    console.log("**im_marked***");
+    console.log(message);
 });
 
 controller.hears(['(.*)'], 'direct_message,direct_mention,mention', (bot, message) => {
-    console.log("*****");
+
     console.log(message);
 
-    if(slack_bot === bot)   {
-        console.log("------- Both bots are same------")
-    }
     if(message.entities.intent == undefined) {
         bot.reply(message, "Sorry, I don't understand.");
         return;
@@ -91,6 +97,7 @@ controller.hears(['(.*)'], 'direct_message,direct_mention,mention', (bot, messag
 
     console.log("Intent: " + intent);
 
+    if(actions[intent] == undefined || actions[intent] == null) return;
     actions[intent](bot, message);
 });
 

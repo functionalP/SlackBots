@@ -1,213 +1,199 @@
-// /*
-//  Copyright (c) 2016 Ariba, Inc.
-//  All rights reserved. Patents pending.
-//
-//  Responsible: i854911 (Harish Kumar)
-//  */
-//
-// 'use strict';
-//
-// // Loading Wit module
-// const Wit = require('node-wit').Wit;
-// var log = require('node-wit').log;
-// const sessionManager = require('./sessions');
-//
-// const wit_client = {};
-//
-// module.exports = wit_client;
-//
-// var debug = true;
-//
-// const WIT_TOKEN = 'ME45SZCOQZIQW2A4W6WV2OYYJSWNZFZK';
-//
-// const firstEntityValue = (entities, entity) => {
-//     const val = entities && entities[entity] &&
-//             Array.isArray(entities[entity]) &&
-//             entities[entity].length > 0 &&
-//             entities[entity][0].value
-//         ;
-//     if (!val) {
-//         return null;
-//     }
-//     return typeof val === 'object' ? val.value : val;
-// };
-//
-// const context = {};
-//
-// //create user session if it doesn't already exist
-// const getOrCreateContext = (sessionId) => {
-//     Object.keys(context).forEach(key => {
-//        if(sessionId === key)    {
-//            return context[key];
-//        }
-//     });
-//
-//     context[sessionId] = {};
-//
-//     return context[sessionId];
-// };
-//
-// const actions = {
-//     send(request, response) {
-//         const {sessionId, context, entities} = request;
-//         const {text, quickreplies} = response;
-//
-//         console.log("***Send called***");
-//         var session = sessionManager.getSession(sessionId);
-//
-//         if(context.checkRules)  {
-//             setTimeout(function()   {
-//                 session.bot.say({
-//                     text: "Checking buyer rules",
-//                     channel: session.channel
-//                 });
-//
-//                 setTimeout(function()   {
-//                     session.bot.say({
-//                         text: "All buyer Rules checked !",
-//                         channel: session.channel
-//                     });
-//
-//                     setTimeout(function()   {
-//                         session.bot.say({
-//                             text: text,
-//                             channel: session.channel
-//                         });
-//                     }, 2000);
-//
-//                 }, 1000);
-//             }, 10);
-//
-//             return;
-//         }
-//         session.bot.say({
-//             text: text,
-//             channel: session.channel
-//         });
-//         return new Promise(function(resolve, reject) {
-//             return resolve();
-//         });
-//     },
-//     createInvoice({context, entities}){
-//         console.log("Create Invoice Called");
-//
-//         return new Promise(function(resolve, reject) {
-//             console.log("So sos");
-//             context.number_po = '3';
-//
-//             console.log(context);
-//             return resolve(context);
-//         });
-//     },
-//     showAllPO({context, entities}){
-//         console.log("Show All PO Called");
-//
-//         return new Promise(function(resolve, reject) {
-//
-//             context.po1 = "PO 12345";
-//             context.po2 = "PO 23456";
-//             context.po3 = "PO 34567";
-//
-//             return resolve(context);
-//         });
-//     },
-//     selectedPO({context, entities}){
-//         console.log("Select PO Called");
-//
-//         return new Promise(function(resolve, reject) {
-//             var po_number = firstEntityValue(entities, 'po_number').toLowerCase();
-//
-//             context.invoice = po_number;
-//             context.checkRules = true;
-//
-//             return resolve(context);
-//         });
-//     }
-// };
-//
-// // Setting up our bot
-// const wit = new Wit({
-//     accessToken: WIT_TOKEN,
-//     apiVersion: "20160516",
-//     actions,
-//     logger: new log.Logger(log.INFO)
-// });
-//
-// wit_client.handleMessage = function (message, sessionId) {
-//     if(debug)   {
-//         console.log('reached handleMessage');
-//     }
-//
-//     console.log(sessionId);
-//     console.log(message);
-//
-//     var context = getOrCreateContext(sessionId);
-//     wit.runActions(sessionId, message, context)
-//         .then((context) => {
-//             if(debug){console.log("Waiting for next messages");}
-//             context[sessionId] = context;
-//         });
-// };
-//
-// wit_client.debug = debug;
+/*
+ Copyright (c) 2016 Ariba, Inc.
+ All rights reserved. Patents pending.
 
-// var Wit = require('node-wit').Wit;
+ Responsible: i854911 (Harish Kumar)
+ */
+
+const HttpsProxyAgent = require('https-proxy-agent');
+
+module.exports = function (options) {
+
+    if (!options || !options.accessToken) {
+        throw new Error('No wit.ai Access Token specified');
+    }
+
+    options.minConfidence = options.minConfidence || 0.5;
+
+    const headers  = {
+        'Authorization': 'Bearer ' + options.accessToken,
+        'Accept': 'application/vnd.wit.' + options.apiVersion + '+json',
+        'Content-Type': 'application/json'
+    };
+
+    var agent = null;
+    var proxyUrl = process.env.https_proxy || process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY;
+    if (proxyUrl) {
+        agent = new HttpsProxyAgent(proxyUrl);
+    }
+
+    const middleware = {};
+
+    middleware.receive = function (bot, message, next) {
+
+        console.log("****MIDDLEWARE RECEIVE****");
+        console.log(message);
+
+        //Avoid text payload generated by buttons in Facebook Messenger
+        if (message.text && !message.payload && !message.attachments && !message.quick_reply) {
+            var Client = require('node-rest-client').Client;
+
+            var client = new Client({
+                connection: {
+                    agent: agent
+                }
+            });
+
+            var args = {
+                headers: headers
+            };
+
+            var qs = 'q=' + encodeURIComponent(message.text);
+
+            var fullURL = "https://api.wit.ai" + '/message?' + qs;
+
+            client.get(fullURL, args, function (data, response) {
+                // parsed response body as js object
+                console.log('Wit.ai response: ' + JSON.stringify(data));
+                message.entities = data.entities;
+                next();
+                // raw response
+                // console.log(response);
+            }).on('error', function (err)   {
+                console.log(err);
+                next(err);
+            });
+        } else {
+            message.entities = {};
+            next();
+        }
+    };
+
+    middleware.hears = function (patterns, message) {
+        if (patterns && message && message.entities && Object.keys(message.entities).length) {
+            for (var i = 0; i < Object.keys(message.entities).length; i++) {
+                for (var t = 0; t < patterns.length; t++) {
+                    if (Object.keys(message.entities)[i] == patterns[t]){
+                        for (var j = 0; j < message.entities[Object.keys(message.entities)[i]].length; j++){
+                            if (message.entities[Object.keys(message.entities)[i]][j].confidence >= options.minConfidence){
+                                return true;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        return false;
+    };
+
+    return middleware;
+};
+
+// const fetch = require('node-fetch');
+// const HttpsProxyAgent = require('https-proxy-agent');
 //
-// // not used at the moment
-// var actions = {
-//     say: function(sessionId, context, message, cb) {
-//         console.log(message);
-//         cb();
-//     },
-//     merge: function(sessionId, context, entities, message, cb) {
-//         cb(context);
-//     },
-//     error: function(sessionId, context, error) {
-//         console.log(error.message);
+// module.exports = function (options) {
+//
+//     if (!options || !options.accessToken) {
+//         throw new Error('No wit.ai Access Token specified');
 //     }
-// };
 //
-// module.exports = function(config) {
+//     options.minConfidence = options.minConfidence || 0.5;
 //
-//     if (!config || !config.token) {
-//         throw new Error('No wit.ai API token specified');
+//     const headers  = {
+//         'Authorization': 'Bearer ' + options.accessToken,
+//         'Accept': 'application/vnd.wit.' + options.apiVersion + '+json',
+//         'Content-Type': 'application/json'
+//     };
+//
+//     var agent = null;
+//     var proxyUrl = process.env.https_proxy || process.env.HTTPS_PROXY || process.env.http_proxy || process.env.HTTP_PROXY;
+//     if (proxyUrl) {
+//         agent = new HttpsProxyAgent(proxyUrl);
 //     }
 //
-//     if (!config.minimum_confidence) {
-//         config.minimum_confidence = 0.5;
-//     }
+//     const middleware = {};
 //
-//     var client = new Wit(config.token, actions);
+//     var _slicedToArray = function () { function sliceIterator(arr, i) { var _arr = []; var _n = true; var _d = false; var _e = undefined; try { for (var _i = arr[Symbol.iterator](), _s; !(_n = (_s = _i.next()).done); _n = true) { _arr.push(_s.value); if (i && _arr.length === i) break; } } catch (err) { _d = true; _e = err; } finally { try { if (!_n && _i["return"]) _i["return"](); } finally { if (_d) throw _e; } } return _arr; } return function (arr, i) { if (Array.isArray(arr)) { return arr; } else if (Symbol.iterator in Object(arr)) { return sliceIterator(arr, i); } else { throw new TypeError("Invalid attempt to destructure non-iterable instance"); } }; }();
 //
-//     var middleware = {};
+//     var makeWitResponseHandler = function makeWitResponseHandler(endpoint) {
+//         return function (rsp) {
+//             var error = function error(err) {
+//                 console.log('[' + endpoint + '] Error: ' + err);
+//                 throw err;
+//             };
 //
-//     middleware.receive = function(bot, message, next) {
-//         // Only parse messages of type text and mention the bot.
-//         // Otherwise it would send every single message to wit (probably don't want that).
-//         if (message.text && message.text.indexOf(bot.identity.id) > -1) {
-//             client.message(message.text, function(error, data) {
-//                 if (error) {
-//                     next(error);
-//                 } else {
+//             if (rsp instanceof Error) {
+//                 return error(rsp);
+//             }
+//
+//             var _rsp = _slicedToArray(rsp, 2),
+//                 json = _rsp[0],
+//                 status = _rsp[1];
+//
+//             if (json instanceof Error) {
+//                 return error(json);
+//             }
+//
+//             var err = json.error || status !== 200 && json.body + ' (' + status + ')';
+//
+//             if (err) {
+//                 return error(err);
+//             }
+//
+//             console.log('[' + endpoint + '] Response: ' + JSON.stringify(json));
+//             return json;
+//         };
+//     };
+//
+//     var makeAPICall = function(message, context) {
+//         var qs = 'q=' + encodeURIComponent(message);
+//         if (context) {
+//             qs += '&context=' + encodeURIComponent(JSON.stringify(context));
+//         }
+//         var method = 'GET';
+//         var fullURL = "https://api.wit.ai" + '/message?' + qs;
+//         var handler = makeWitResponseHandler('message');
+//         return fetch(fullURL, {
+//             method: method,
+//             headers: headers,
+//             agent: agent
+//         }).then(function (response) {
+//             return Promise.all([response.json(), response.status]);
+//         }).then(handler);
+//     };
+//
+//     middleware.receive = function (bot, message, next) {
+//
+//         //Avoid text payload generated by buttons in Facebook Messenger
+//         if (message.text && message.text.indexOf("_") == -1 && !message.payload && !message.attachments && !message.quick_reply) {
+//             makeAPICall(message.text)
+//                 .then((data) => {
+//                     console.log('Wit.ai response: ' + JSON.stringify(data));
 //                     message.entities = data.entities;
 //                     next();
-//                 }
-//             });
-//         } else if (message.attachments) {
-//             message.intents = [];
-//             next();
+//                 })
+//                 .catch((err) => {
+//                     console.log(err);
+//                     next(err);
+//                 });
 //         } else {
+//             message.entities = {};
 //             next();
 //         }
 //     };
 //
-//     middleware.hears = function(tests, message) {
-//         if (message.entities && message.entities.intent) {
-//             for (var i = 0; i < message.entities.intent.length; i++) {
-//                 for (var t = 0; t < tests.length; t++) {
-//                     if (message.entities.intent[i].value == tests[t] &&
-//                         message.entities.intent[i].confidence >= config.minimum_confidence) {
-//                         return true;
+//     middleware.hears = function (patterns, message) {
+//         if (patterns && message && message.entities && Object.keys(message.entities).length) {
+//             for (var i = 0; i < Object.keys(message.entities).length; i++) {
+//                 for (var t = 0; t < patterns.length; t++) {
+//                     if (Object.keys(message.entities)[i] == patterns[t]){
+//                         for (var j = 0; j < message.entities[Object.keys(message.entities)[i]].length; j++){
+//                             if (message.entities[Object.keys(message.entities)[i]][j].confidence >= options.minConfidence){
+//                                 return true;
+//                             }
+//                         }
 //                     }
 //                 }
 //             }
@@ -218,3 +204,4 @@
 //
 //     return middleware;
 // };
+

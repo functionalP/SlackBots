@@ -24,7 +24,7 @@ module.exports = {
                 bot.reply(message, "All buyer Rules checked !")
                 setTimeout(function()   {
                     bot.reply(message, messageCreatedInvoice(po_number.value));
-                }, 2000);
+                }, 1000);
 
             }, 1000);
         }, 10);
