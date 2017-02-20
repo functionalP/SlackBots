@@ -43,7 +43,7 @@ slack_bot.startRTM(err => {
 });
 
 slack_bot.sendWebhook({
-    text: 'Welcome! How may I help you?',
+    text: 'Invoice 4711 rejected'
 }, (err, res) =>    {
     if(err) {
         console.log("Error in posting to incoming webhook");
@@ -54,36 +54,6 @@ slack_bot.sendWebhook({
 });
 
 controller.middleware.receive.use(wit.receive);
-
-// Listening for the event when the bot joins a channel
-controller.on('channel_joined', (bot, { channel: { id, name } }) => {
-    bot.say({
-    text: `Thank you for inviting me to channel ${name}`,
-    channel: id
-    });
-});
-
-controller.on('channel_leave', (bot, { channel: { id, name } }) => {
-    bot.say({
-        text: `Thank you for leaving channel ${name}`,
-        channel: id
-    });
-});
-
-controller.on('im_open', (bot, message) => {
-    console.log("**im_open***");
-    console.log(message);
-});
-
-controller.on('im_close', (bot, message) => {
-    console.log("**im_close***");
-    console.log(message);
-});
-
-controller.on('im_marked', (bot, message) => {
-    console.log("**im_marked***");
-    console.log(message);
-});
 
 controller.hears(['(.*)'], 'direct_message,direct_mention,mention', (bot, message) => {
 
