@@ -42,16 +42,18 @@ slack_bot.startRTM(err => {
     }
 });
 
-slack_bot.sendWebhook({
-    text: 'Invoice 4711 rejected'
-}, (err, res) =>    {
-    if(err) {
-        console.log("Error in posting to incoming webhook");
-        return;
-    }
-    console.log("Posted to Incoming webhook successfully");
-    console.log(res);
-});
+botkit.postNotification = function(notification)    {
+    slack_bot.sendWebhook({
+        text: notification.message
+    }, (err, res) =>    {
+        if(err) {
+            console.log("Error in posting to incoming webhook");
+            return;
+        }
+        console.log("Posted to Incoming webhook successfully");
+        console.log(res);
+    });
+};
 
 controller.middleware.receive.use(wit.receive);
 

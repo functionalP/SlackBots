@@ -123,11 +123,11 @@ function messageBuilderSubmit() {
                 "attachment_type": "default",
                 "actions": [
                     {
-                        "name": "Update more",
-                        "text": "Update more",
+                        "name": "Update",
+                        "text": "Update",
                         // "style": "primary",
                         "type": "button",
-                        "value": "Update more"
+                        "value": "Update"
                     },
                     {
                         "name": "Submit",
