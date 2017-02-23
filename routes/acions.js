@@ -79,7 +79,7 @@ module.exports = {
 
 function messageBuilderRecommend() {
     var jsonObj = {
-        "text": "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues.",
+        "text": "You invoiced 100 items but the buyer received only 50 units. On 03/10/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues.",
         "attachments": [
             {
                 "text":"Receipt summary",
