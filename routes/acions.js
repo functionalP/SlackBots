@@ -11,15 +11,13 @@ module.exports = {
     recommend:  function(bot, message)  {
         console.log("Inside recommend");
         context="help";
+        bot.reply(message, messageBuilderRecommend());
         setTimeout(function() {
-            bot.reply(message, messageBuilderRecommend());
-            setTimeout(function () {
-                bot.reply(message, "Do you want to update the quantity to 50 units?");
-            }, 500);
-        },10);
+            bot.reply(message, "Do you want to update this information?");
+        },2000);
 
     },
-    yes:  function(bot, message)   {
+    Ok:  function(bot, message)   {
         console.log("Inside yes");
         if(context=="help") {
             bot.reply(message,messageBuilderSubmit());
@@ -31,6 +29,12 @@ module.exports = {
         // else if(context=="adjust_tax"){
         //     bot.reply(message,messageBuilderSubmit());
         // }dlk
+    },
+    yes:  function(bot, message) {
+        console.log("Inside yes");
+        if (context == "help") {
+            bot.reply(message, messageBuilderSubmit());
+        }
     },
     show_receipt:  function(bot, message)   {
         console.log("Inside show_receipt");
@@ -45,13 +49,20 @@ module.exports = {
             setTimeout(function()   {
                 bot.reply(message, "• Quantities :white_check_mark:");
                 setTimeout(function()   {
-                    bot.reply(message, "70% chance of invoice being approved");
+                    bot.reply(message, "70% chance of invoice being approved.");
                     setTimeout(function()   {
-                        bot.reply(message, "Invoice 5711 is created.");
+                        bot.reply(message, messageBuilderImproveChance());
+                        // console.log("printing message-----")
+                        // console.log(message);
+                        // message.text="90% chance of invoice being approved.";
                     }, 2000);
                 }, 1000);
             }, 200);
         }, 100);
+    },
+    acceptRecommend:function (bot,message) {
+        console.log("Inside acceptRecommend");
+        bot.reply(message,"Invoice 5711 is created.")
     },
     current_payment_info:  function(bot, message)   {
         console.log("Inside current_payment_info");
@@ -64,12 +75,11 @@ module.exports = {
 };
 
 function messageBuilderRecommend() {
-    console.log("-----messageBuilder Called----")
     var jsonObj = {
         "text": "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues. ",
         "attachments": [
             {
-                "text":"receipt",
+                "text":"Receipt summary",
                 "image_url": "https://peaceful-springs-59601.herokuapp.com/Quantity",
                 "color": "#3AA3E3"
             }
@@ -78,30 +88,30 @@ function messageBuilderRecommend() {
     return jsonObj;
 }
 
-function messageBuilderTax() {
+function messageBuilderImproveChance() {
     var jsonObj = {
-        "text": "Based on the past invoices with this buyer - IT Solutions at this location – Tampa, FL, tax rate is 6% and not currently used 7.5%.",
+        "text":"Recommendations to improve the chances of approval to 90%",
         "attachments": [
             {
-                "text": "Do you want to adjust the taxes?",
+                "text":"• Update the billing address to 3420 Hillview Ave, Palo Alto, CA 94304",
                 "fallback": "You are unable to choose",
                 "callback_id": "wopr_game",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
                 "actions": [
                     {
-                        "name": "Yes",
-                        "text": "Yes",
+                        "name": "Accept",
+                        "text": "Accept",
                         "style": "primary",
                         "type": "button",
-                        "value": "Yes"
+                        "value": "Accept"
                     },
                     {
-                        "name": "No",
-                        "text": "No",
+                        "name": "NoThanks",
+                        "text": "No, Thanks",
                         "style": "danger",
                         "type": "button",
-                        "value": "No"
+                        "value": "Decline"
                     }
                 ]
             }
@@ -123,11 +133,11 @@ function messageBuilderSubmit() {
                 "attachment_type": "default",
                 "actions": [
                     {
-                        "name": "Update",
-                        "text": "Update",
+                        "name": "Update more",
+                        "text": "Update more",
                         // "style": "primary",
                         "type": "button",
-                        "value": "Update"
+                        "value": "Update more"
                     },
                     {
                         "name": "Submit",
@@ -149,7 +159,7 @@ function messageBuilderReceipt() {
         "text": "only one goods receipt found.",
         "attachments": [
             {
-                "text": "Do you want to update the quantity to 50 units?",
+                "text": "Do you want to update this information?",
                 "fallback": "You are unable to choose",
                 "callback_id": "wopr_game",
                 "color": "#3AA3E3",
