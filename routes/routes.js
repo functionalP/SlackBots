@@ -14,6 +14,9 @@ module.exports = function(app)  {
         var notification = {
           message : "Invoice " + req.params.id + " rejected"
         };
+
+        global.invoice = req.params.id;
+
         slack_bot.postNotification(notification);
         res.send("Rejected Invoice: " + req.params.id);
     });

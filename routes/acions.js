@@ -3,41 +3,23 @@
  */
 
 var context="";
+
 module.exports = {
-    // notifyIssue:  function(bot, message)   {
-    //     console.log("Inside notifyIssue");
-    //     bot.reply(message, "Invoice 4711 rejected")
-    // },
     recommend:  function(bot, message)  {
         console.log("Inside recommend");
         context="help";
         bot.reply(message, messageBuilderRecommend(), function(response)    {
             console.log(response);
-            bot.reply(message, "Do you want to update this information?");
+            bot.reply(message, "Do you want to update this information and re-submit the invoice?");
         });
-        //bot.reply(message, "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues. https://peaceful-springs-59601.herokuapp.com/Quantity|Receipt Summary. Do you want me to update this information ?");
-        // setTimeout(function() {
-        // },3000);
-
     },
     Ok:  function(bot, message)   {
         console.log("Inside yes");
-        if(context=="help") {
-            bot.reply(message,messageBuilderSubmit());
-        }
-        // else if(context=="update_quantity"){
-        //     context="adjust_tax";
-        //     bot.reply(message,messageBuilderTax());
-        // }
-        // else if(context=="adjust_tax"){
-        //     bot.reply(message,messageBuilderSubmit());
-        // }dlk
+        submitInvoice(bot, message);
     },
-    yes:  function(bot, message) {
+    yes: function(bot, message)   {
         console.log("Inside yes");
-        if (context == "help") {
-            bot.reply(message, messageBuilderSubmit());
-        }
+        submitInvoice(bot, message);
     },
     show_receipt:  function(bot, message)   {
         console.log("Inside show_receipt");
@@ -46,26 +28,13 @@ module.exports = {
     },
     submitInvoice: function(bot, message)  {
         console.log("Inside submitInvoice ");
-
-        setTimeout(function()   {
-            bot.reply(message, "• Prices :white_check_mark:");
-            setTimeout(function()   {
-                bot.reply(message, "• Quantities :white_check_mark:");
-                setTimeout(function()   {
-                    bot.reply(message, "70% chance of invoice being approved.");
-                    setTimeout(function()   {
-                        bot.reply(message, messageBuilderImproveChance());
-                        // console.log("printing message-----")
-                        // console.log(message);
-                        // message.text="90% chance of invoice being approved.";
-                    }, 2000);
-                }, 1000);
-            }, 200);
-        }, 100);
+        //submitInvoice(bot, message);
     },
     acceptRecommend:function (bot,message) {
         console.log("Inside acceptRecommend");
-        bot.reply(message,"Invoice 5711 is created.")
+        var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
+        var msg = "Invoice " + invoice + " is created.";
+        bot.reply(message,msg);
     },
     current_payment_info:  function(bot, message)   {
         console.log("Inside current_payment_info");
@@ -73,13 +42,18 @@ module.exports = {
     },
     get_payments:  function(bot, message)   {
         console.log("Inside current_payment_info");
-        bot.reply(message,messageBuilderPaymentImage());
+        bot.reply(message,messageBuilderPaymentImage(), function(){
+            bot.reply(message, "Is there anything else that I can help with ?");
+        });
+    },
+    final_regards: function(bot, message)   {
+        console.log("Final Regards.");
     }
 };
 
 function messageBuilderRecommend() {
     var jsonObj = {
-        "text": "You invoiced 100 items but the buyer received only 50 units. On 03/10/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues.",
+        "text": "You invoiced 100 items even though buyer has rejected 50 units for `GRN 3242424`.",
         "attachments": [
             {
                 "text":"Receipt summary",
@@ -201,4 +175,22 @@ function messageBuilderPaymentImage() {
         ]
     };
     return jsonObj;
+}
+
+function submitInvoice(bot, message) {
+    setTimeout(function () {
+        bot.reply(message, "• Prices :white_check_mark:");
+        setTimeout(function () {
+            bot.reply(message, "• Quantities :white_check_mark:");
+            setTimeout(function () {
+                bot.reply(message, "80% chance of invoice being approved.");
+                setTimeout(function () {
+                    bot.reply(message, messageBuilderImproveChance());
+                    // console.log("printing message-----")
+                    // console.log(message);
+                    // message.text="90% chance of invoice being approved.";
+                }, 2000);
+            }, 1000);
+        }, 200);
+    }, 100);
 }
