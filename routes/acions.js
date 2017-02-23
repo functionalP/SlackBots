@@ -11,10 +11,13 @@ module.exports = {
     recommend:  function(bot, message)  {
         console.log("Inside recommend");
         context="help";
-        bot.reply(message, messageBuilderRecommend());
-        setTimeout(function() {
+        bot.reply(message, messageBuilderRecommend(), function(response)    {
+            console.log(response);
             bot.reply(message, "Do you want to update this information?");
-        },2000);
+        });
+        //bot.reply(message, "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues. https://peaceful-springs-59601.herokuapp.com/Quantity|Receipt Summary. Do you want me to update this information ?");
+        // setTimeout(function() {
+        // },3000);
 
     },
     Ok:  function(bot, message)   {
@@ -76,7 +79,7 @@ module.exports = {
 
 function messageBuilderRecommend() {
     var jsonObj = {
-        "text": "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues. ",
+        "text": "You invoiced 100 items but the buyer received only 50 units. On 10/03/2017, buyer’s `GRN 3242424` indicates 50 units were rejected for quality issues.",
         "attachments": [
             {
                 "text":"Receipt summary",
