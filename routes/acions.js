@@ -7,19 +7,24 @@ var context="";
 module.exports = {
     recommend:  function(bot, message)  {
         console.log("Inside recommend");
-        context="help";
+        context="UnitsUpdate";
         bot.reply(message, messageBuilderRecommend(), function(response)    {
             console.log(response);
             bot.reply(message, "Do you want to update this information and re-submit the invoice?");
         });
     },
-    Ok:  function(bot, message)   {
-        console.log("Inside yes");
-        submitInvoice(bot, message);
-    },
-    yes: function(bot, message)   {
-        console.log("Inside yes");
-        submitInvoice(bot, message);
+    Ok: function(bot, message)   {
+        console.log("Inside Ok");
+        if(context == "AddressUpdate")   {
+            var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
+            var msg = "Invoice " + invoice + " is created.";
+            bot.reply(message,msg);
+            context="InvoiceCreated";
+        } else if (context == "UnitsUpdate")    {
+            submitInvoice(bot, message);
+        }else   {
+            bot.reply(message, "Sorry, I don't understand");
+        }
     },
     show_receipt:  function(bot, message)   {
         console.log("Inside show_receipt");
@@ -28,21 +33,32 @@ module.exports = {
     },
     submitInvoice: function(bot, message)  {
         console.log("Inside submitInvoice ");
-        //submitInvoice(bot, message);
+        if(context == "AddressUpdate")   {
+            var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
+            var msg = "Invoice " + invoice + " is created.";
+            bot.reply(message,msg);
+            context="InvoiceCreated";
+        } else if (context == "UnitsUpdate")    {
+            submitInvoice(bot, message);
+        } else   {
+            bot.reply(message, "Sorry, I don't understand");
+        }
     },
-    acceptRecommend:function (bot,message) {
-        console.log("Inside acceptRecommend");
-        var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
-        var msg = "Invoice " + invoice + " is created.";
-        bot.reply(message,msg);
-    },
+    // acceptRecommend:function (bot,message) {
+    //     console.log("Inside acceptRecommend");
+    //     var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
+    //     var msg = "Invoice " + invoice + " is created.";
+    //     bot.reply(message,msg);
+    // },
     current_payment_info:  function(bot, message)   {
         console.log("Inside current_payment_info");
+        context="CurrentPaymentInfo";
         bot.reply(message,"If you are approved today, you are scheduled to get paid $2,000 by April 30th, 2017");
     },
     get_payments:  function(bot, message)   {
         console.log("Inside current_payment_info");
-        bot.reply(message,messageBuilderPaymentImage(), function(){
+        context="RemainingPaymentInfo"
+            bot.reply(message,messageBuilderPaymentImage(), function(){
             bot.reply(message, "Is there anything else that I can help with ?");
         });
     },
@@ -178,19 +194,18 @@ function messageBuilderPaymentImage() {
 }
 
 function submitInvoice(bot, message) {
+    context="AddressUpdate";
+    bot.reply(message, "• Prices :white_check_mark:");
     setTimeout(function () {
-        bot.reply(message, "• Prices :white_check_mark:");
+        bot.reply(message, "• Quantities :white_check_mark: \n • Other rules :white_check_mark:");
         setTimeout(function () {
-            bot.reply(message, "• Quantities :white_check_mark:");
+            bot.reply(message, "80% chance of invoice being approved.");
             setTimeout(function () {
-                bot.reply(message, "80% chance of invoice being approved.");
-                setTimeout(function () {
-                    bot.reply(message, messageBuilderImproveChance());
-                    // console.log("printing message-----")
-                    // console.log(message);
-                    // message.text="90% chance of invoice being approved.";
-                }, 2000);
-            }, 1000);
-        }, 200);
-    }, 100);
+                bot.reply(message, messageBuilderImproveChance());
+                // console.log("printing message-----")
+                // console.log(message);
+                // message.text="90% chance of invoice being approved.";
+            }, 2000);
+        }, 1000);
+    }, 500);
 }
