@@ -48,7 +48,11 @@ module.exports = function (options) {
                 headers: headers
             };
 
-            var qs = 'q=' + encodeURIComponent(message.text);
+            var msg = message.text.substr(message.text.indexOf(">") + 1, message.text.length);
+
+            var qs = 'q=' + encodeURIComponent(msg);
+
+            console.log("Message: " + msg);
 
             var fullURL = "https://api.wit.ai" + '/message?' + qs;
 
