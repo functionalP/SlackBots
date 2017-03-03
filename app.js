@@ -21,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'public')));
 
 require('./routes/routes')(app);
 
-require('./routes/botkit');
+require('./routes/botkit')(app);
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
@@ -32,9 +32,11 @@ app.use(function(req, res, next) {
 
 // error handler
 app.use(function(err, req, res, next) {
+  console.log("****************Error handler/***************");
   // set locals, only providing error in development
   res.locals.message = err.message;
   res.locals.error = req.app.get('env') === 'development' ? err : {};
+  //console.log(req);
 
   // render the error page
   res.status(err.status || 500);

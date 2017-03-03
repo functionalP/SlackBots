@@ -64,6 +64,12 @@ module.exports = {
     },
     final_regards: function(bot, message)   {
         console.log("Final Regards.");
+    },
+    recommendations_callback: function(bot, message)    {
+        console.log("Inside recommendations callback");
+        if(message.actions[0].name == "Accept") {
+            this.Ok(bot, message);
+        }
     }
 };
 
@@ -88,20 +94,20 @@ function messageBuilderImproveChance() {
             {
                 "text":"• Update the billing address to 3420 Hillview Ave, Palo Alto, CA 94304",
                 "fallback": "You are unable to choose",
-                "callback_id": "wopr_game",
+                "callback_id": "recommendations_callback",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
                 "actions": [
                     {
                         "name": "Accept",
-                        "text": "Accept",
+                        "text": "Accept & Submit",
                         "style": "primary",
                         "type": "button",
                         "value": "Accept"
                     },
                     {
-                        "name": "NoThanks",
-                        "text": "No, Thanks",
+                        "name": "Cancel",
+                        "text": "Continue & Submit",
                         "style": "danger",
                         "type": "button",
                         "value": "Decline"
@@ -146,6 +152,7 @@ function messageBuilderSubmit() {
     return jsonObj;
 }
 
+/****This method is not required****/
 function messageBuilderReceipt() {
     console.log("-----messageBuilder Called----")
     var jsonObj = {
@@ -154,7 +161,7 @@ function messageBuilderReceipt() {
             {
                 "text": "Do you want to update this information?",
                 "fallback": "You are unable to choose",
-                "callback_id": "wopr_game",
+                "callback_id": "recommendations_callback",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
                 "actions": [
