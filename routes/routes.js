@@ -15,7 +15,7 @@ module.exports = function(app)  {
         console.log(bot);
 
         var notification = {
-          message : "Invoice " + req.params.id + " rejected"
+          message : "Invoice " + req.params.id + " is rejected by Herge Oil on 3/21/2017"
         };
 
         global.invoice = req.params.id;

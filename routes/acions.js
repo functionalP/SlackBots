@@ -8,48 +8,28 @@ module.exports = {
     recommend:  function(bot, message)  {
         console.log("Inside recommend");
         context="UnitsUpdate";
-        bot.reply(message, messageBuilderRecommend(), function(response)    {
-            console.log(response);
-            bot.reply(message, "Do you want to update this information and re-submit the invoice?");
-        });
+        bot.reply(message, messageBuilderAskHelp());
     },
     Ok: function(bot, message)   {
         console.log("Inside Ok");
-        if(context == "AddressUpdate")   {
-            var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
-            var msg = "Invoice " + invoice + " is created.";
-            bot.reply(message,msg);
-            context="InvoiceCreated";
-        } else if (context == "UnitsUpdate")    {
-            submitInvoice(bot, message);
-        }else   {
-            bot.reply(message, "Sorry, I don't understand");
-        }
-    },
-    show_receipt:  function(bot, message)   {
-        console.log("Inside show_receipt");
-        context="update_quantity";
-        bot.reply(message,messageBuilderReceipt());
-    },
-    submitInvoice: function(bot, message)  {
-        console.log("Inside submitInvoice ");
-        if(context == "AddressUpdate")   {
-            var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
-            var msg = "Invoice " + invoice + " is created.";
-            bot.reply(message,msg);
-            context="InvoiceCreated";
-        } else if (context == "UnitsUpdate")    {
+        if (context == "UnitsUpdate")    {
+            bot.reply(message, messageBuilderProvideOptions());
+        } else if (context == "OptionProvided")   {
             submitInvoice(bot, message);
         } else   {
             bot.reply(message, "Sorry, I don't understand");
         }
     },
-    // acceptRecommend:function (bot,message) {
-    //     console.log("Inside acceptRecommend");
-    //     var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
-    //     var msg = "Invoice " + invoice + " is created.";
-    //     bot.reply(message,msg);
-    // },
+    submitInvoice: function(bot, message)  {
+        console.log("Inside submitInvoice ");
+        if (context == "UnitsUpdate")    {
+            bot.reply(message, messageBuilderProvideOptions());
+        } else if (context == "OptionProvided")   {
+            submitInvoice(bot, message);
+        }else   {
+            bot.reply(message, "Sorry, I don't understand");
+        }
+    },
     current_payment_info:  function(bot, message)   {
         console.log("Inside current_payment_info");
         context="CurrentPaymentInfo";
@@ -70,98 +50,35 @@ module.exports = {
         if(message.actions[0].name == "Accept") {
             this.Ok(bot, message);
         }
+    },
+    help2FixInvoice: function(bot, message) {
+        console.log("Inside help2FixInvoice");
+        if(message.actions[0].name == "Yes") {
+            this.Ok(bot, message);
+        }
+    },
+    submitWithOption1: function(bot, message)   {
+        console.log("Inside submitWithOption1");
+        if(message.actions[0].name == "Accept") {
+            this.Ok(bot, message);
+        }
+    },
+    submitWithOption2: function(bot, message)   {
+        console.log("Inside submitWithOption1");
+        if(message.actions[0].name == "Accept") {
+            this.Ok(bot, message);
+        }
     }
 };
 
-function messageBuilderRecommend() {
+function messageBuilderAskHelp() {
     var jsonObj = {
-        "text": "You invoiced 100 items even though buyer has rejected 50 units for `GRN 3242424`.",
+        "text": "You invoiced 10 external HD-55 hard drive's, but Herge Oil had rejected 5 units due to wrong specifications.",
         "attachments": [
             {
-                "text":"Receipt summary",
-                "image_url": "https://peaceful-springs-59601.herokuapp.com/Quantity",
-                "color": "#3AA3E3"
-            }
-        ]
-    };
-    return jsonObj;
-}
-
-function messageBuilderImproveChance() {
-    var jsonObj = {
-        "text":"Recommendations to improve the chances of approval to 90%",
-        "attachments": [
-            {
-                "text":"• Update the billing address to 3420 Hillview Ave, Palo Alto, CA 94304",
-                "fallback": "You are unable to choose",
-                "callback_id": "recommendations_callback",
-                "color": "#3AA3E3",
-                "attachment_type": "default",
-                "actions": [
-                    {
-                        "name": "Accept",
-                        "text": "Accept & Submit",
-                        "style": "primary",
-                        "type": "button",
-                        "value": "Accept"
-                    },
-                    {
-                        "name": "Cancel",
-                        "text": "Continue & Submit",
-                        "style": "danger",
-                        "type": "button",
-                        "value": "Decline"
-                    }
-                ]
-            }
-        ]
-    };
-    return jsonObj;
-}
-
-function messageBuilderSubmit() {
-    console.log("-----messageBuilder Called----")
-    var jsonObj = {
-        "text": "Great! Do you want to update any other information before submitting the invoice?",
-        "attachments": [
-            {
-                // "text": "Choose a PO to create invoice",
-                "fallback": "You are unable to choose",
-                "callback_id": "wopr_game",
-                "color": "#3AA3E3",
-                "attachment_type": "default",
-                "actions": [
-                    {
-                        "name": "Update more",
-                        "text": "Update more",
-                        // "style": "primary",
-                        "type": "button",
-                        "value": "Update more"
-                    },
-                    {
-                        "name": "Submit",
-                        "text": "Submit",
-                        "style": "primary",
-                        "type": "button",
-                        "value": "Submit"
-                    }
-                ]
-            }
-        ]
-    };
-    return jsonObj;
-}
-
-/****This method is not required****/
-function messageBuilderReceipt() {
-    console.log("-----messageBuilder Called----")
-    var jsonObj = {
-        "text": "only one goods receipt found.",
-        "attachments": [
-            {
-                "text": "Do you want to update this information?",
-                "fallback": "You are unable to choose",
-                "callback_id": "recommendations_callback",
+                "text":"Do you want my help to fix the issue?",
+                "fallback": "Sorry for the trouble. Please type Yes or No",
+                "callback_id": "help2FixInvoice",
                 "color": "#3AA3E3",
                 "attachment_type": "default",
                 "actions": [
@@ -178,6 +95,55 @@ function messageBuilderReceipt() {
                         "style": "danger",
                         "type": "button",
                         "value": "No"
+                    },
+                    {
+                        "name": "CallSupport",
+                        "text": "Call Support",
+                        "style": "primary",
+                        "type": "button",
+                        "value": "CallSupport"
+                    }
+                ]
+            }
+        ]
+    };
+    return jsonObj;
+}
+
+function messageBuilderProvideOptions() {
+    context = "OptionProvided";
+    var jsonObj = {
+        "text":"Select the appropriate option and re-submit the invoice",
+        "attachments": [
+            {
+                "text":"• 80% - Change quantity 10 to 5 units",
+                "fallback": "Type, Change 10 to 5",
+                "callback_id": "submitWithOption1",
+                "color": "#3AA3E3",
+                "attachment_type": "default",
+                "actions": [
+                    {
+                        "name": "Accept",
+                        "text": "Accept",
+                        "style": "primary",
+                        "type": "button",
+                        "value": "Accept"
+                    }
+                ]
+            },
+            {
+                "text":"• 90% - Option 1 + Change bill-to address to 3420 Hillview Ave, Palo Alto, 3410 ",
+                "fallback": "Type, Change Billing Address and Quantity",
+                "callback_id": "submitWithOption2",
+                "color": "#3AA3E3",
+                "attachment_type": "default",
+                "actions": [
+                    {
+                        "name": "Accept",
+                        "text": "Accept",
+                        "style": "primary",
+                        "type": "button",
+                        "value": "Accept"
                     }
                 ]
             }
@@ -201,18 +167,18 @@ function messageBuilderPaymentImage() {
 }
 
 function submitInvoice(bot, message) {
-    context="AddressUpdate";
-    bot.reply(message, "• Prices :white_check_mark:");
-    setTimeout(function () {
-        bot.reply(message, "• Quantities :white_check_mark: \n • Other rules :white_check_mark:");
+    bot.reply(message, "• Prices :white_check_mark:", function()    {
         setTimeout(function () {
-            bot.reply(message, "80% chance of invoice being approved.");
-            setTimeout(function () {
-                bot.reply(message, messageBuilderImproveChance());
-                // console.log("printing message-----")
-                // console.log(message);
-                // message.text="90% chance of invoice being approved.";
-            }, 2000);
-        }, 1000);
-    }, 500);
+            bot.reply(message, "• Quantities :white_check_mark:", function()    {
+                setTimeout(function()   {
+                    bot.reply(message, "• Other rules :white_check_mark:", function()   {
+                        var invoice = parseInt(global.invoice) + Math.floor((Math.random() * 100) + 1);
+                        var msg = "Invoice " + invoice + " is submitted to Herge Oil.";
+                        bot.reply(message, msg);
+                        context="InvoiceCreated";
+                    });
+                }, 100);
+            });
+        }, 100);
+    });
 }
