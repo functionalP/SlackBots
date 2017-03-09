@@ -29,12 +29,7 @@ function Bot()  {
 
     bot.postNotification = function(notification)    {
 
-        // console.log("Slack_bot");
-        // console.log(slack_bot);
-
-        slack_bot.sendWebhook({
-            text: notification.message
-        }, (err, res) =>    {
+        slack_bot.sendWebhook(notification, (err, res) =>    {
             if(err) {
                 console.log("Error in posting to incoming webhook");
                 return;
@@ -42,6 +37,10 @@ function Bot()  {
             console.log("Posted to Incoming webhook successfully");
             console.log(res);
         });
+    };
+
+    bot.getSlackBot = function()    {
+        return slack_bot;
     };
 
     return bot;

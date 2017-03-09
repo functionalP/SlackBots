@@ -33,7 +33,7 @@ function BotKit(app)  {
     controller.configureSlackApp({
         clientId: clientId,
         clientSecret: clientSecret,
-        scopes: ['incoming-webhook','team:read','users:read','channels:read','im:read','im:write','groups:read','emoji:read','chat:write:bot']
+        scopes: ['incoming-webhook','bot','chat:write:bot','chat:write:user']
     });
 
     controller.createOauthEndpoints(app, function(err, req, res)    {
@@ -57,6 +57,8 @@ function BotKit(app)  {
         console.log(team_bot.token);
 
         slack_bot_token=team_bot.token;
+        global.app_token = team_bot.app_token;
+        console.log("App Token: " + global.app_token);
         bot.init(controller, incoming_webhook_url, slack_bot_token);
     });
 
@@ -90,7 +92,6 @@ function BotKit(app)  {
 
     controller.on('interactive_message_callback', function(bot, message) {
         console.log('triggered----');
-        console.log(message.callback_id);
         actions[message.callback_id](bot, message);
     });
 
