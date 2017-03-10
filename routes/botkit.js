@@ -24,6 +24,9 @@ function BotKit(app)  {
     const controller = Botkit.slackbot({storage: BotkitStorageBeepBoop()});
 
     controller.startTicking();
+    
+    var beepboop= beepboop_botkit.start(controller, { debug: true })
+
     beepboop.on("botkit.rtm.started",function (bot,resource,metadata) {
         console.log("----beepboop botkit------");
         console.log(bot);
@@ -32,7 +35,6 @@ function BotKit(app)  {
     })
 
 
-    // beepboop_botkit.start(controller, { debug: true })
 
     require('./slack-handlers')(app, controller);
 
