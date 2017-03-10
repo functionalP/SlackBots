@@ -26,15 +26,11 @@ function BotKit(app)  {
     controller.startTicking();
     
     var beepboop= beepboop_botkit.start(controller, { debug: true })
-
-    beepboop.on("botkit.rtm.started",function (bot,resource,metadata) {
-        console.log("----beepboop botkit------");
-        console.log(bot);
-        console.log(resource);
-        console.log(metadata);
-    })
-
-
+    
+    beepboop.on("botkit.rtm.started", function(bot, resource, meta)    {
+        console.log("*** botkit.rtm.started ***");
+        bot.init(resource.SlackIncomingWebhookURL, resource.SlackBotAccessToken);
+    });
 
     require('./slack-handlers')(app, controller);
 
