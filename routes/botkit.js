@@ -27,7 +27,7 @@ function BotKit(app)  {
 
     var beepboop = beepboop_botkit.start(controller, { debug: true });
 
-    beepboop.on("botkit.rtm.started", function(bot, resource, meta)    {
+    beepboop.on("botkit.rtm.started", function(_bot, resource, meta)    {
         console.log("*** botkit.rtm.started ***");
         bot.init(resource.SlackIncomingWebhookURL, resource.SlackBotAccessToken);
     });
