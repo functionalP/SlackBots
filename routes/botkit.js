@@ -5,72 +5,29 @@ const Botkit = require('botkit');
 const actions = require("./acions");
 const bot = require("./bot")();
 const path = require("path");
+const beepboop_botkit = require('beepboop-botkit');
+var BotkitStorageBeepBoop = require('botkit-storage-beepboop');
 
 function BotKit(app)  {
     var botkit = {};
 
-    var clientId = '135147242677.142534151139';
-    var clientSecret = '224502f99ebf322637fd9ef1daaa7303';
-
 // Checking for the wit token
-    if (!process.env.WIT_TOKEN) {
-        console.error('Error: Specify a Wit token in an environment variable');
-        process.exit(1);
-    }
+    const WIT_TOKEN="PEVL7DWLOGHF6T6ZQPO6KUC6VC2SRNW7";
 
     var wit = require('./wit')({
-        accessToken: process.env.WIT_TOKEN,
+        accessToken: WIT_TOKEN,
         apiVersion: '20160516',
         minConfidence: 0.6,
         logLevel: 'debug'
     });
 
-// Creates the Slack bot
-    const controller = Botkit.slackbot({
-        json_file_store:path.join(__dirname + '/../' + 'db')
-    });
+    const controller = Botkit.slackbot({storage: BotkitStorageBeepBoop()});
 
-    controller.configureSlackApp({
-        clientId: clientId,
-        clientSecret: clientSecret,
-        scopes: ['incoming-webhook','bot','chat:write:bot','chat:write:user']
-    });
+    controller.startTicking();
 
-    controller.createOauthEndpoints(app, function(err, req, res)    {
-        res.status(200).end();
-    });
+    beepboop_botkit.start(controller, { debug: true })
 
-    controller.createWebhookEndpoints(app);
-
-    var incoming_webhook_url;
-
-    controller.on('create_incoming_webhook',function (bot,incoming_webhook) {
-        console.log('incoming_webhook----------');
-        console.log(incoming_webhook);
-        incoming_webhook_url=incoming_webhook.url;
-    });
-
-    var slack_bot_token;
-
-    controller.on('create_bot',function (_bot,team_bot) {
-        console.log('bot-token----------');
-        console.log(team_bot.token);
-
-        slack_bot_token=team_bot.token;
-        global.app_token = team_bot.app_token;
-        console.log("App Token: " + global.app_token);
-        bot.init(controller, incoming_webhook_url, slack_bot_token);
-    });
-
-    controller.storage.teams.all(function (err, teams) {
-        console.log('teams----');
-        console.log(teams);
-        if(teams.length == 0) {
-            return;
-        }
-        console.log(teams[0]);
-        bot.init(controller, teams[0].incoming_webhook.url, teams[0].bot.token);
-    });
+    require('./slack-handlers')(app, controller);
 
     controller.middleware.receive.use(wit.receive);
 
