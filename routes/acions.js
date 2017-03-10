@@ -3,9 +3,6 @@
  */
 
 var context="";
-var request = require('request');
-var Client = require('node-rest-client').Client;
-var slack_bot = require('./bot')();
 
 module.exports = {
     // recommend:  function(bot, message)  {
