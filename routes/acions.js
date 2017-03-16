@@ -102,7 +102,7 @@ function constructShowIssuesMessage(message) {
         // "token": global.app_token,
         // "ts": message.message_ts,
         // "channel": message.channel,
-        "text": "*<https://fwefwefwef.com|Invoice 1411>* from <https://ssdfwefwe.com|Herge Oil> has been rejected",
+        "text": "*<https://fwefwefwef.com|Invoice "+global.invoice +">* from <https://ssdfwefwe.com|Herge Oil> has been rejected",
         "replace_original":true,
         "attachments": [
             {
@@ -297,7 +297,7 @@ function getAttachments()   {
     return [
         {
             "mrkdwn_in": ["pretext"],
-            "pretext": "*<https://slack.com|Invoice 1411>* from <https://google.com|Herge Oil> has been rejected",
+            "pretext": "*<https://slack.com|Invoice "+global.invoice +">* from <https://google.com|Herge Oil> has been rejected",
             "color": "#f2c407",
             "fields": [
                 {
