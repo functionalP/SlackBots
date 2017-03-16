@@ -156,7 +156,7 @@ function constructOptionsMessage(message)   {
                 "type": "button",
                 "value": "Option 1",
                 "confirm": {
-                    "title": "Are you sure you want to re-submit the invoice?",
+                    "text": "Are you sure you want to re-submit the invoice?",
                     "ok_text": "Yes",
                     "dismiss_text": "No"
                 }
@@ -167,7 +167,7 @@ function constructOptionsMessage(message)   {
                 "type": "button",
                 "value": "Option 2",
                 "confirm": {
-                    "title": "Are you sure you want to re-submit the invoice?",
+                    "text": "Are you sure you want to re-submit the invoice?",
                     "ok_text": "Yes",
                     "dismiss_text": "No"
                 }
@@ -179,7 +179,7 @@ function constructOptionsMessage(message)   {
                 "value": "Option 3",
                 "style": "primary",
                 "confirm": {
-                    "title": "Are you sure you want to re-submit the invoice?",
+                    "text": "Are you sure you want to re-submit the invoice?",
                     "ok_text": "Yes",
                     "dismiss_text": "No"
                 }
