@@ -12,9 +12,9 @@ Creating an app will provide us with the Client ID and Secret we need to inp
  - Select the team you'd like the app to be associated as its creator and fill all remaining fields.
  - In the redirect URI field, paste your ngrok forwarding address and add the /oauth endpoint at the end of the address
  - Add to slack authorizes the app as shown in figures below:
- ![alt text](https://github.com/functionalP/SlackBots/blob/master/SlackBotArchitecture.tiff)
+ ![alt text](https://github.com/functionalP/SlackBots/blob/master/Add2Slack.png)
 
- ![alt text](https://github.com/functionalP/SlackBots/blob/master/SlackBotArchitecture.tiff)
+ ![alt text](https://github.com/functionalP/SlackBots/blob/master/AppAuthorization.png)
 
 ### Installation
 'npm install
